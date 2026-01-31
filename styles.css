@@ -104,8 +104,10 @@ nav .right a span {
 }
 
 .hero-section .headshot img {
-  width: 350px;
+  width: 200px;
   border-radius: 50%;
+  height:200px;
+  object-fit: cover;
 }
 
 /* SECTION 2: Skills */
@@ -262,7 +264,7 @@ nav .right a span {
   }
 
   .hero-section .headshot img {
-    width: 300px;
+    width: 200px;
   }
 
   /* SECTION 3: Testimony */
