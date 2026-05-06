@@ -1,45 +1,55 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
+  // Navbar Scroll Effect
+  const navbar = document.getElementById("navbar");
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 50) {
+      navbar.style.padding = "0 40px";
+      navbar.style.background = "rgba(15, 23, 42, 0.95)";
+    } else {
+      navbar.style.padding = "0 80px";
+      navbar.style.background = "rgba(15, 23, 42, 0.8)";
+    }
+  });
 
-  // =========================
-  // HERO TEXT CHANGE
-  // =========================
-  const heroTitle = document.querySelector(".hero-section h2");
-  const heroPara = document.querySelector(".hero-section p");
+  // Reveal Elements on Scroll
+  const observerOptions = {
+    threshold: 0.1,
+  };
 
-  if (heroTitle) heroTitle.style.color = "#2563eb";
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.style.opacity = "1";
+        entry.target.style.transform = "translateY(0)";
+      }
+    });
+  }, observerOptions);
 
-  if (heroPara) {
-    heroPara.textContent =
-      "I am a Full Stack Developer learning HTML, CSS and JavaScript step by step 🚀";
-  }
+  // Apply animation styles and observe
+  const sections = document.querySelectorAll("section");
+  sections.forEach((section) => {
+    section.style.opacity = "0";
+    section.style.transform = "translateY(30px)";
+    section.style.transition = "all 0.8s ease-out";
+    observer.observe(section);
+  });
 
-  // =========================
-  // BUTTONS + SMOOTH SCROLL
-  // =========================
-  const buttons = document.querySelectorAll(".links a");
-
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      e.preventDefault();
-
-      // remove active from all
-      buttons.forEach((b) => b.classList.remove("active"));
-
-      // add active to clicked
-      this.classList.add("active");
-
-      // scroll to section
-      const targetId = this.getAttribute("href").substring(1);
-      const targetSection = document.getElementById(targetId);
-
-      if (targetSection) {
-        targetSection.scrollIntoView({
-          behavior: "smooth",
-        });
+  // Smooth Scroll for Internal Navigation Links Only
+  document.querySelectorAll('nav .right a[href^="#"], .hero-section .links a[href^="#"]').forEach((anchor) => {
+    anchor.addEventListener("click", function (e) {
+      const targetId = this.getAttribute("href");
+      if (targetId.startsWith("#") && targetId !== "#") {
+        e.preventDefault();
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: "smooth",
+          });
+        }
       }
     });
   });
 
-  console.log("Buttons working with JS ✅");
-  document.
+  console.log("Premium Portfolio Script Initialized 🚀");
 });
