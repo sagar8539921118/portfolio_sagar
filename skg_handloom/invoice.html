@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - SK Handloom</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #0f172a;
+            --secondary-color: #475569;
+            --accent-color: #2563eb;
+            --border-color: #e2e8f0;
+            --bg-light: #f1f5f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-light);
+            padding: 40px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .actions {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background-color: var(--accent-color);
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.3);
+        }
+
+        #invoice-container {
+            width: 800px;
+            background: white;
+            padding: 60px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 30px;
+        }
+
+        .company-info h1 {
+            color: var(--primary-color);
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .company-info p {
+            color: var(--secondary-color);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .invoice-title {
+            text-align: right;
+        }
+
+        .invoice-title h2 {
+            font-size: 20px;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .invoice-details p {
+            font-size: 14px;
+            color: var(--primary-color);
+            margin-bottom: 6px;
+        }
+
+        .invoice-details span {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .billing-section {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 50px;
+        }
+
+        .bill-to h3 {
+            font-size: 12px;
+            color: var(--secondary-color);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .bill-to p {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--primary-color);
+            line-height: 1.6;
+        }
+
+        .bill-to span {
+            font-weight: 400;
+            color: var(--secondary-color);
+            font-size: 14px;
+        }
+
+        .table-container {
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: var(--bg-light);
+            color: var(--primary-color);
+            text-align: left;
+            padding: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        td {
+            padding: 20px 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            color: var(--primary-color);
+            vertical-align: top;
+        }
+
+        .item-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .item-sub {
+            font-size: 12px;
+            color: var(--secondary-color);
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .summary-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+
+        .summary-table {
+            width: 350px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 14px;
+            color: var(--secondary-color);
+        }
+
+        .summary-row.taxable {
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid var(--primary-color);
+            margin-top: 15px;
+            padding-top: 20px;
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .amount-words {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--primary-color);
+            border: 1px dashed var(--border-color);
+        }
+
+        .amount-words span {
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent-color);
+        }
+
+        .footer {
+            margin-top: 80px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .terms {
+            max-width: 450px;
+        }
+
+        .terms h4 {
+            font-size: 12px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .terms p {
+            font-size: 11px;
+            color: var(--secondary-color);
+            line-height: 1.6;
+            margin-bottom: 4px;
+        }
+
+        .signature {
+            text-align: center;
+            width: 250px;
+        }
+
+        .signature-img {
+            height: 60px;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+
+        .signature-line {
+            border-top: 1px solid var(--primary-color);
+            padding-top: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-color);
+            text-transform: uppercase;
+        }
+
+        .paid-stamp {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-20deg);
+            border: 8px solid #ef4444;
+            color: #ef4444;
+            padding: 15px 50px;
+            font-size: 60px;
+            font-weight: 950;
+            text-transform: uppercase;
+            opacity: 0.1;
+            pointer-events: none;
+            border-radius: 20px;
+            letter-spacing: 10px;
+        }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .actions { display: none; }
+            #invoice-container { box-shadow: none; border: none; padding: 40px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="actions">
+        <button class="btn btn-primary" onclick="generatePDF()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Generate PDF
+        </button>
+    </div>
+
+    <div id="invoice-container">
+        <div class="paid-stamp">PAID</div>
+        
+        <div class="header">
+            <div class="company-info">
+                <h1>SK Handloom</h1>
+                <p>Maheshpur, Dhanbad, Jharkhand - 826001</p>
+                <p>Phone: +91 7004657417</p>
+                <p>GSTIN: 20DCKPB8495P1Z1</p>
+                <p>Email: skhandloom@gmail.com</p>
+            </div>
+            <div class="invoice-title">
+                <h2>Tax Invoice</h2>
+                <div class="invoice-details">
+                    <p>Invoice No: <span>#6352</span></p>
+                    <p>Date: <span>07-05-2026</span></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="billing-section">
+            <div class="bill-to">
+                <h3>Bill To:</h3>
+                <p>Daljit Singh <span>(p.no. 58013524)</span></p>
+                <p>AHQ Block 2</p>
+                <p>Contact: <span>9229252998</span></p>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th>Item Description</th>
+                        <th class="text-right">Qty</th>
+                        <th class="text-right">Rate</th>
+                        <th class="text-right">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>
+                            <div class="item-name">Raymond Shirting (Premium Dark Grey)</div>
+                            <div class="item-sub">Design No: Swift 444</div>
+                        </td>
+                        <td class="text-right">4.90</td>
+                        <td class="text-right">₹839.286</td>
+                        <td class="text-right">₹4,318.125</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>
+                            <div class="item-name">Raymond Suiting (Colorado) Zed Blk</div>
+                            <div class="item-sub">Design No: 4413</div>
+                        </td>
+                        <td class="text-right">3.90</td>
+                        <td class="text-right">₹1,277.167</td>
+                        <td class="text-right">₹5,230.000</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>
+                            <div class="item-name">Stitching Charges (Pant & Shirt)</div>
+                            <div class="item-sub">Unit: Pcs</div>
+                        </td>
+                        <td class="text-right">3.00</td>
+                        <td class="text-right">₹952.063</td>
+                        <td class="text-right">₹2,999.000</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-section">
+            <div class="summary-table">
+                <div class="summary-row taxable">
+                    <span>Taxable Amount</span>
+                    <span>₹11,949.642</span>
+                </div>
+                <div class="summary-row">
+                    <span>CGST (2.5%)</span>
+                    <span>₹298.742</span>
+                </div>
+                <div class="summary-row">
+                    <span>SGST (2.5%)</span>
+                    <span>₹298.742</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total Amount</span>
+                    <span>₹12,547.125</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="amount-words">
+            Invoice Amount in Words: <span>Twelve Thousand Five Hundred Forty Seven Rupees and Thirteen Paisa Only</span>
+        </div>
+
+        <div class="footer">
+            <div class="terms">
+                <h4>Terms & Conditions</h4>
+                <p>• No guarantee on fancy dress.</p>
+                <p>• Goods once sold will not be taken back or exchanged.</p>
+                <p>• Subject to Dhanbad Jurisdiction.</p>
+            </div>
+            <div class="signature">
+                <div class="signature-line">Authorized Signatory</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const container = document.getElementById('invoice-container');
+            
+            try {
+                const canvas = await html2canvas(container, {
+                    scale: 3,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                
+                const imgWidth = 210;
+                const pageHeight = 297;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+                pdf.save('sk_handloom_invoice.pdf');
+            } catch (err) {
+                console.error('PDF Generation Error:', err);
+                alert('Error generating PDF. Please try again.');
+            }
+        }
+    </script>
+</body>
+</html>

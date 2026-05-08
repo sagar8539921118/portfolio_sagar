@@ -12,31 +12,38 @@ window.addEventListener('mousemove', (e) => {
     mouseY = e.clientY;
 });
 
-function animateCursor() {
-    cursorX += (mouseX - cursorX) * 0.1;
-    cursorY += (mouseY - cursorY) * 0.1;
-    followerX += (mouseX - followerX) * 0.05;
-    followerY += (mouseY - followerY) * 0.05;
+const isMobile = window.innerWidth <= 768;
 
-    cursor.style.transform = `translate3d(${cursorX - 10}px, ${cursorY - 10}px, 0)`;
-    follower.style.transform = `translate3d(${followerX - 3}px, ${followerY - 3}px, 0)`;
+if (!isMobile) {
+    function animateCursor() {
+        cursorX += (mouseX - cursorX) * 0.1;
+        cursorY += (mouseY - cursorY) * 0.1;
+        followerX += (mouseX - followerX) * 0.05;
+        followerY += (mouseY - followerY) * 0.05;
 
-    requestAnimationFrame(animateCursor);
+        cursor.style.transform = `translate3d(${cursorX - 10}px, ${cursorY - 10}px, 0)`;
+        follower.style.transform = `translate3d(${followerX - 3}px, ${followerY - 3}px, 0)`;
+
+        requestAnimationFrame(animateCursor);
+    }
+    animateCursor();
+
+    links.forEach(link => {
+        link.addEventListener('mouseenter', () => {
+            cursor.style.transform += ' scale(2.5)';
+            cursor.style.background = 'rgba(56, 189, 248, 0.1)';
+            follower.style.opacity = '0';
+        });
+        link.addEventListener('mouseleave', () => {
+            cursor.style.transform = cursor.style.transform.replace(' scale(2.5)', '');
+            cursor.style.background = 'transparent';
+            follower.style.opacity = '1';
+        });
+    });
+} else {
+    cursor.style.display = 'none';
+    follower.style.display = 'none';
 }
-animateCursor();
-
-links.forEach(link => {
-    link.addEventListener('mouseenter', () => {
-        cursor.style.transform += ' scale(2.5)';
-        cursor.style.background = 'rgba(56, 189, 248, 0.1)';
-        follower.style.opacity = '0';
-    });
-    link.addEventListener('mouseleave', () => {
-        cursor.style.transform = cursor.style.transform.replace(' scale(2.5)', '');
-        cursor.style.background = 'transparent';
-        follower.style.opacity = '1';
-    });
-});
 
 // TYPING ANIMATION
 if (document.getElementById('typed-text')) {
