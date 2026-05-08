@@ -1,68 +1,106 @@
-// Smooth Scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            window.scrollTo({
-                top: target.offsetTop - 80,
-                behavior: 'smooth'
-            });
-        }
+// CUSTOM CURSOR LOGIC
+const cursor = document.querySelector('.cursor');
+const follower = document.querySelector('.cursor-follower');
+const links = document.querySelectorAll('a, button, input, textarea');
+
+let mouseX = 0, mouseY = 0;
+let cursorX = 0, cursorY = 0;
+let followerX = 0, followerY = 0;
+
+window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+});
+
+function animateCursor() {
+    cursorX += (mouseX - cursorX) * 0.1;
+    cursorY += (mouseY - cursorY) * 0.1;
+    followerX += (mouseX - followerX) * 0.05;
+    followerY += (mouseY - followerY) * 0.05;
+
+    cursor.style.transform = `translate3d(${cursorX - 10}px, ${cursorY - 10}px, 0)`;
+    follower.style.transform = `translate3d(${followerX - 3}px, ${followerY - 3}px, 0)`;
+
+    requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+links.forEach(link => {
+    link.addEventListener('mouseenter', () => {
+        cursor.style.transform += ' scale(2.5)';
+        cursor.style.background = 'rgba(56, 189, 248, 0.1)';
+        follower.style.opacity = '0';
+    });
+    link.addEventListener('mouseleave', () => {
+        cursor.style.transform = cursor.style.transform.replace(' scale(2.5)', '');
+        cursor.style.background = 'transparent';
+        follower.style.opacity = '1';
     });
 });
 
-// Navbar background change on scroll
+// TYPING ANIMATION
+if (document.getElementById('typed-text')) {
+    new Typed('#typed-text', {
+        strings: ['SAGAR KUMAR GUPTA', 'A FULL STACK DEVELOPER', 'A MERN SPECIALIST', 'A PROBLEM SOLVER'],
+        typeSpeed: 60,
+        backSpeed: 40,
+        loop: true,
+        backDelay: 2000
+    });
+}
+
+// NAVBAR SCROLL EFFECT
 const navbar = document.getElementById('navbar');
+const scrollIndicator = document.querySelector('.scroll-indicator');
+
 window.addEventListener('scroll', () => {
+    // Scroll Indicator Update
+    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled = (winScroll / height) * 100;
+    scrollIndicator.style.width = scrolled + "%";
+
     if (window.scrollY > 50) {
-        navbar.style.background = 'rgba(15, 23, 42, 0.95)';
-        navbar.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
+        navbar.style.marginTop = '0px';
+        navbar.style.width = '100%';
+        navbar.style.borderRadius = '0px';
+        navbar.style.background = 'rgba(2, 6, 23, 0.95)';
     } else {
-        navbar.style.background = 'rgba(15, 23, 42, 0.8)';
-        navbar.style.boxShadow = 'none';
+        navbar.style.marginTop = '15px';
+        navbar.style.width = '90%';
+        navbar.style.borderRadius = '40px';
+        navbar.style.background = 'rgba(2, 6, 23, 0.8)';
     }
 });
 
-// Contact Form Submission Simulation
+// GSAP ENTRANCE ANIMATIONS
+gsap.registerPlugin(ScrollTrigger);
+
+// Hero Parallax
+gsap.to(".headshot img", {
+    y: -50,
+    scrollTrigger: {
+        trigger: ".hero-section",
+        start: "top top",
+        end: "bottom top",
+        scrub: true
+    }
+});
+
+// Form Submission (Updated)
 const contactForm = document.querySelector('.contact-section form');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const btn = contactForm.querySelector('button');
-        const originalText = btn.innerText;
-        
         btn.innerText = 'Sending...';
         btn.disabled = true;
 
-        // Simulate API Call
         setTimeout(() => {
-            alert('Thank you! Sagar has received your message and will get back to you soon.');
+            alert('Message Sent! I will contact you shortly.');
             contactForm.reset();
-            btn.innerText = originalText;
+            btn.innerText = 'Send Message';
             btn.disabled = false;
         }, 1500);
     });
 }
-
-// Active Link Highlighting on Scroll
-const sections = document.querySelectorAll('section');
-const navLinks = document.querySelectorAll('.right a');
-
-window.addEventListener('scroll', () => {
-    let current = '';
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (pageYOffset >= sectionTop - 150) {
-            current = section.getAttribute('id');
-        }
-    });
-
-    navLinks.forEach(link => {
-        link.style.color = ''; // Reset
-        if (link.getAttribute('href') === `#${current}`) {
-            link.style.color = '#6366f1';
-        }
-    });
-});
