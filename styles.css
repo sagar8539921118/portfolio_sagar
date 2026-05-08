@@ -394,6 +394,20 @@ main {
   100% { transform: translateY(-100px) scale(1); opacity: 0; }
 }
 
+.contact-links p {
+  margin-bottom: 10px;
+}
+
+.contact-links a {
+  text-decoration: none;
+  color: var(--text-muted);
+  transition: var(--transition);
+}
+
+.contact-links a:hover {
+  color: var(--primary);
+}
+
 /* SECTION HEADINGS FIX */
 section h2 {
   font-size: 3rem;
