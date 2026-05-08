@@ -394,6 +394,35 @@ main {
   100% { transform: translateY(-100px) scale(1); opacity: 0; }
 }
 
+/* CERTIFICATIONS */
+.cert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 25px;
+  margin-top: 50px;
+}
+
+.cert-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 30px;
+}
+
+.cert-icon i {
+  font-size: 2.5rem;
+}
+
+.cert-details h3 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.cert-details p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
 .contact-links p {
   margin-bottom: 10px;
 }
